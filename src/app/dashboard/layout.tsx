@@ -29,11 +29,11 @@ export default function DashboardLayout({
 
   if (!user) {
     return (
-        <div className="flex flex-col min-h-svh">
-             <div className="flex-1 flex flex-col min-h-0">
-                {children}
-            </div>
+      <div className="flex flex-col min-h-svh">
+        <div className="flex-1 flex flex-col min-h-0">
+          {children}
         </div>
+      </div>
     );
   }
 
@@ -42,7 +42,7 @@ export default function DashboardLayout({
       currentProject={currentProject}
       onProjectChange={setCurrentProject}
     >
-      {React.cloneElement(children as React.ReactElement, { currentProject })}
+      {React.cloneElement(children as React.ReactElement<{ currentProject: Project | undefined }>, { currentProject })}
     </AppLayout>
   );
 }

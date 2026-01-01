@@ -5,12 +5,12 @@
 // Instead, export a function that returns the config object.
 
 export function getFirebaseConfig() {
-    return {
-      "projectId": "studio-7848745664-59c97",
-      "appId": "1:693382987098:web:90e526026225d6f9dd0763",
-      "apiKey": "AIzaSyCkM_pqLDJptqsjz9hJ3gebv9ZGyw0xdyg",
-      "authDomain": "studio-7848745664-59c97.firebaseapp.com",
-      "measurementId": "",
-      "messagingSenderId": "693382987098"
-    };
+  return {
+    "projectId": process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    "appId": process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    "apiKey": process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    "authDomain": process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    "measurementId": process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID || "",
+    "messagingSenderId": process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+  };
 }

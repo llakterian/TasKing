@@ -38,9 +38,9 @@ export async function createProject(
   projectData: NewProjectPayload
 ): Promise<DocumentReference<Project>> {
   try {
-    const projectCollection = collection(firestore, 'projects') as any;
+    const projectCollection = collection(firestore, 'projects');
     const docRef = await addDoc(projectCollection, projectData);
-    return docRef;
+    return docRef as DocumentReference<Project>;
   } catch (error) {
     console.error('Error creating project:', error);
     throw new Error('Failed to create project.');
