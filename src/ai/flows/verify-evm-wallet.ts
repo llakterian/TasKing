@@ -20,25 +20,37 @@ if (!admin.apps.length) {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
   if (privateKey) {
-    // 1. Handle surrounding quotes if the user pasted it with quotes into Vercel
+    // 1. Incredibly robust cleaning
+    privateKey = privateKey.trim();
+
+    // Handle surrounding quotes
     if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      privateKey = privateKey.substring(1, privateKey.length - 1);
+      privateKey = privateKey.substring(1, privateKey.length - 1).trim();
     }
-    // 2. Standard fix: replace literal \n with actual newlines
+
+    // Replace literal \n or escaped \n
     privateKey = privateKey.replace(/\\n/g, '\n');
-    // 3. Remove escaped double quotes if any
-    privateKey = privateKey.replace(/\\"/g, '"');
+    privateKey = privateKey.replace(/\\r/g, '\r');
+
+    // Ensure header/footer formatting - sometimes users copy without them or they get mangled
+    if (!privateKey.includes('-----BEGIN PRIVATE KEY-----') && privateKey.includes('-----END PRIVATE KEY-----')) {
+      console.warn('PEM Header missing but footer present. Attempting reconstruction.');
+      // Find where the key content likely starts (after any random characters)
+      // Or just prepend it if it's missing entirely.
+      privateKey = `-----BEGIN PRIVATE KEY-----\n${privateKey}`;
+    }
   }
 
   if (projectId && clientEmail && privateKey) {
     try {
-      // Log metadata to debug formatting without revealing the key
-      console.log('Firebase Admin: Initializing with metadata:', {
-        projectId,
-        clientEmail,
+      // Diagnostic logging (Safer: doesn't show key content, just structure)
+      const first5 = privateKey.substring(0, 5).split('').map(c => c.charCodeAt(0)).join(',');
+      console.log('Firebase Admin Diagnostics:', {
         keyLength: privateKey.length,
-        hasHeader: privateKey.includes('-----BEGIN PRIVATE KEY-----'),
-        hasFooter: privateKey.includes('-----END PRIVATE KEY-----'),
+        hasHeaderStrict: privateKey.includes('-----BEGIN PRIVATE KEY-----'),
+        hasFooterStrict: privateKey.includes('-----END PRIVATE KEY-----'),
+        first5CharCodes: first5,
+        projectIdLabel: projectId.substring(0, 5) + '...',
       });
 
       admin.initializeApp({
@@ -48,9 +60,9 @@ if (!admin.apps.length) {
           privateKey,
         }),
       });
-      console.log('Firebase Admin initialized successfully with credentials.');
+      console.log('Firebase Admin initialized successfully.');
     } catch (e: any) {
-      console.error('Error initializing Firebase Admin with credentials:', e.message);
+      console.error('Error initializing Firebase Admin:', e.message);
     }
   } else {
     const missing = [];
