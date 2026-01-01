@@ -65,7 +65,13 @@ const attachmentSchema = z.object({
 
 export function NewTaskSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const [isRecommending, setIsRecommending] = React.useState(false);
   const [attachmentType, setAttachmentType] = React.useState<'github' | 'drive' | 'link' | null>(null);
   const [attachments, setAttachments] = React.useState<Attachment[]>([]);
@@ -340,7 +346,7 @@ export function NewTaskSheet({ children }: { children: React.ReactNode }) {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {form.watch("dueDate") ? format(form.watch("dueDate")!, "PPP") : <span>Pick a date</span>}
+                      {mounted && form.watch("dueDate") ? format(form.watch("dueDate")!, "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -398,34 +404,34 @@ export function NewTaskSheet({ children }: { children: React.ReactNode }) {
               </Button>
             </SheetFooter>
           </form>
+
+          <Dialog open={!!attachmentType} onOpenChange={(isOpen) => !isOpen && resetAttachmentDialog()}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add {attachmentType} attachment</DialogTitle>
+                <DialogDescription>
+                  Enter the name and URL for your attachment.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="attachment-name" className="text-right">Name</Label>
+                  <Input id="attachment-name" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} className="col-span-3" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="attachment-url" className="text-right">URL</Label>
+                  <Input id="attachment-url" value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="col-span-3" />
+                </div>
+                {attachmentError && <p className="text-sm text-destructive col-span-4 text-center">{attachmentError}</p>}
+              </div>
+              <DialogFooter>
+                <Button type="button" variant="ghost" onClick={resetAttachmentDialog}>Cancel</Button>
+                <Button type="button" onClick={handleAddAttachment}>Add Attachment</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </SheetContent>
       </Sheet>
-
-      <Dialog open={!!attachmentType} onOpenChange={(isOpen) => !isOpen && resetAttachmentDialog()}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add {attachmentType} attachment</DialogTitle>
-            <DialogDescription>
-              Enter the name and URL for your attachment.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="attachment-name" className="text-right">Name</Label>
-              <Input id="attachment-name" value={attachmentName} onChange={(e) => setAttachmentName(e.target.value)} className="col-span-3" />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="attachment-url" className="text-right">URL</Label>
-              <Input id="attachment-url" value={attachmentUrl} onChange={(e) => setAttachmentUrl(e.target.value)} className="col-span-3" />
-            </div>
-            {attachmentError && <p className="text-sm text-destructive col-span-4 text-center">{attachmentError}</p>}
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={resetAttachmentDialog}>Cancel</Button>
-            <Button type="button" onClick={handleAddAttachment}>Add Attachment</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

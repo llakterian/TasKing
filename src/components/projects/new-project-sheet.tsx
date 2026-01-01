@@ -17,7 +17,14 @@ import {
   Input,
   Label,
   Textarea,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Calendar,
 } from "@/components/ui";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useFirebase, useUser, useCurrentProject } from '@/firebase';
 import { createProject } from '@/firebase/firestore/mutations';
@@ -27,12 +34,19 @@ import type { Project } from '@/lib/data';
 const FormSchema = z.object({
   name: z.string().min(1, "Project name is required."),
   description: z.string().optional(),
+  dueDate: z.date().optional(),
 });
 
 type FormValues = z.infer<typeof FormSchema>;
 
 export function NewProjectSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { toast } = useToast();
   const { firestore } = useFirebase();
   const { user } = useUser();
@@ -43,6 +57,7 @@ export function NewProjectSheet({ children }: { children: React.ReactNode }) {
     defaultValues: {
       name: "",
       description: "",
+      dueDate: undefined,
     },
   });
 
@@ -63,6 +78,7 @@ export function NewProjectSheet({ children }: { children: React.ReactNode }) {
       const docRef = await createProject(firestore, {
         name: data.name,
         ownerId: user.uid,
+        dueDate: data.dueDate ? data.dueDate.toISOString() : null,
       });
 
       console.log('NewProjectSheet: Project created successfully, ID:', docRef.id);
@@ -70,7 +86,12 @@ export function NewProjectSheet({ children }: { children: React.ReactNode }) {
       // Fetch the mock project object to set it as current
       // Actually, we can just set it to undefined and the layout's useEffect will pick up the new project
       // Or we construct a partial Project object.
-      const newProj = { id: docRef.id, name: data.name, ownerId: user.uid } as Project;
+      const newProj: Project = {
+        id: docRef.id,
+        name: data.name,
+        ownerId: user.uid,
+        dueDate: data.dueDate ? data.dueDate.toISOString() : null,
+      };
       setCurrentProject(newProj);
 
       toast({
@@ -113,6 +134,34 @@ export function NewProjectSheet({ children }: { children: React.ReactNode }) {
             <div className="space-y-2">
               <Label htmlFor="description">Description (Optional)</Label>
               <Textarea id="description" {...form.register("description")} className="min-h-[100px]" placeholder="A brief description of what this project is about." />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="dueDate">Target End Date (Optional)</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="dueDate"
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !form.watch("dueDate") && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {mounted && form.watch("dueDate") ? format(form.watch("dueDate")!, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={form.watch("dueDate") || undefined}
+                    onSelect={(date) => {
+                      form.setValue("dueDate", date || undefined);
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
 

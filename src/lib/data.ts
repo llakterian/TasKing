@@ -17,12 +17,13 @@ export interface Project {
   id: string;
   name: string;
   ownerId: string;
+  dueDate?: string | null;
 }
 
 export interface Attachment {
-    type: 'github' | 'drive' | 'link';
-    name: string;
-    url: string;
+  type: 'github' | 'drive' | 'link';
+  name: string;
+  url: string;
 }
 
 export interface Task {
@@ -41,8 +42,8 @@ export interface Task {
 }
 
 export interface Message {
-    id: string;
-    text: string;
-    authorId: string;
-    createdAt: Timestamp;
+  id: string;
+  text: string;
+  authorId: string;
+  createdAt: Timestamp;
 }
