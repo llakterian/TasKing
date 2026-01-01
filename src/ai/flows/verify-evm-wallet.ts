@@ -15,10 +15,24 @@ import * as admin from 'firebase-admin';
 
 // Initialize Firebase Admin SDK if not already initialized
 if (!admin.apps.length) {
-  // In a managed environment, we can use the default credential
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-  });
+  const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+
+  if (projectId && clientEmail && privateKey) {
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId,
+        clientEmail,
+        privateKey,
+      }),
+    });
+  } else {
+    // Fallback for local development or managed environments with default credentials
+    admin.initializeApp({
+      credential: admin.credential.applicationDefault(),
+    });
+  }
 }
 
 
@@ -38,7 +52,7 @@ export type VerifyEVMWalletOutput = z.infer<typeof VerifyEVMWalletOutputSchema>;
 
 
 export async function verifyEVMWallet(input: VerifyEVMWalletInput): Promise<VerifyEVMWalletOutput> {
-    return verifyEVMWalletFlow(input);
+  return verifyEVMWalletFlow(input);
 }
 
 
@@ -55,7 +69,7 @@ const verifyEVMWalletFlow = ai.defineFlow(
       if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
         throw new Error('Signature verification failed: Recovered address does not match provided address.');
       }
-      
+
       const customToken = await admin.auth().createCustomToken(address);
 
       return { customToken };
