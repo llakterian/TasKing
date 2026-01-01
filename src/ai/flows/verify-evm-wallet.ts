@@ -111,20 +111,32 @@ const verifyEVMWalletFlow = ai.defineFlow(
   },
   async ({ address, message, signature }) => {
     try {
+      console.log('verifyEVMWalletFlow: Starting verification for address:', address);
+
+      // Genkit API Key Check
+      const hasAIKey = !!(process.env.GOOGLE_GENAI_API_KEY || process.env.GOOGLE_API_KEY);
+      console.log('verifyEVMWalletFlow: Genkit API Key present:', hasAIKey);
+
       const recoveredAddress = ethers.verifyMessage(message, signature);
+      console.log('verifyEVMWalletFlow: Recovered address:', recoveredAddress);
 
       if (recoveredAddress.toLowerCase() !== address.toLowerCase()) {
+        console.error('verifyEVMWalletFlow: Address mismatch!', { provided: address, recovered: recoveredAddress });
         throw new Error('Signature verification failed: Recovered address does not match provided address.');
       }
 
+      console.log('verifyEVMWalletFlow: Attempting to create custom token...');
       const customToken = await admin.auth().createCustomToken(address);
+      console.log('verifyEVMWalletFlow: Custom token created successfully.');
 
       return { customToken };
 
     } catch (error: any) {
-      console.error('EVM Wallet verification error:', error.message);
-      // It's better to throw a more specific error or handle it gracefully
-      // For now, re-throwing the original error message.
+      console.error('verifyEVMWalletFlow: Error details:', {
+        message: error.message,
+        stack: error.stack,
+        code: error.code
+      });
       throw new Error(`Failed to verify EVM wallet signature: ${error.message}`);
     }
   }

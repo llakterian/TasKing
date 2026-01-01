@@ -1,22 +1,9 @@
-2026-01-01 22:06:15.550 [info] Firebase Admin: Initializing with metadata: {
-  projectId: 'studio-7848745664-59c97',
-  clientEmail: 'firebase-adminsdk-fbsvc@studio-7848745664-59c97.iam.gserviceaccount.com',
-  keyLength: 1677,
-  hasHeader: false,
-  hasFooter: true
+2026-01-01 22:12:06.708 [warning] PEM Header missing but footer present. Attempting reconstruction.
+2026-01-01 22:12:06.709 [info] Firebase Admin Diagnostics: {
+  keyLength: 1705,
+  hasHeaderStrict: true,
+  hasFooterStrict: true,
+  first5CharCodes: '45,45,45,45,45',
+  projectIdLabel: 'studi...'
 }
-2026-01-01 22:06:15.642 [error] Error initializing Firebase Admin with credentials: Failed to parse private key: Error: Invalid PEM formatted message.
-2026-01-01 22:06:15.939 [error] EVM Wallet verification error: The default Firebase app does not exist. Make sure you call initializeApp() before using any of the Firebase services.
-2026-01-01 22:06:15.969 [error] Error: Failed to verify EVM wallet signature: The default Firebase app does not exist. Make sure you call initializeApp() before using any of the Firebase services.
-    at <unknown> (.next/server/chunks/918.js:16:2097)
-    at <unknown> (.next/server/chunks/699.js:40:42401)
-    at a (.next/server/chunks/699.js:13:29943)
-    at o (.next/server/chunks/699.js:56:9413)
-    at <unknown> (.next/server/chunks/699.js:13:30204)
-    at <unknown> (.next/server/chunks/699.js:5:124611)
-    at m.run (.next/server/chunks/699.js:33:313735)
-    at <unknown> (.next/server/chunks/699.js:5:124599) {
-  traceId: 'a0456d701dd97924e53e24b133454d97',
-  ignoreFailedSpan: true,
-  digest: '2720125815'
-}
+2026-01-01 22:12:06.766 [info] Firebase Admin initialized successfully.
