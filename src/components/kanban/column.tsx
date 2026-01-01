@@ -1,14 +1,17 @@
 import type { Status, Task, UserProfile, Project } from "@/lib/data";
 import { KanbanCard } from "./card";
 
+import { useCurrentProject } from "@/firebase";
+
 type KanbanColumnProps = {
   status: Status;
   tasks: Task[];
   users: UserProfile[];
-  currentProject: Project;
 };
 
-export function KanbanColumn({ status, tasks, users, currentProject }: KanbanColumnProps) {
+export function KanbanColumn({ status, tasks, users }: KanbanColumnProps) {
+  const { currentProject } = useCurrentProject();
+  if (!currentProject) return null;
   return (
     <div className="flex flex-col w-72 min-w-72">
       <div className="flex items-center justify-between mb-4">
@@ -21,8 +24,8 @@ export function KanbanColumn({ status, tasks, users, currentProject }: KanbanCol
       </div>
       <div className="flex flex-col gap-4 overflow-y-auto min-h-0 flex-1">
         {tasks.map((task) => {
-           const assignee = users.find((user) => user.uid === task.assigneeId);
-           return <KanbanCard key={task.id} task={task} assignee={assignee} currentProject={currentProject} />
+          const assignee = users.find((user) => user.uid === task.assigneeId);
+          return <KanbanCard key={task.id} task={task} assignee={assignee} />
         })}
       </div>
     </div>

@@ -8,13 +8,15 @@ import { format, formatDistanceToNow } from "date-fns";
 import { TaskDetailSheet } from "./task-detail-sheet";
 import type { Timestamp } from "firebase/firestore";
 
+import { useCurrentProject } from "@/firebase";
+
 type KanbanCardProps = {
   task: Task;
   assignee?: UserProfile | null;
-  currentProject: Project;
 };
 
-export function KanbanCard({ task, assignee, currentProject }: KanbanCardProps) {
+export function KanbanCard({ task, assignee }: KanbanCardProps) {
+  const { currentProject } = useCurrentProject();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
 
   const priorityColors = {
@@ -43,35 +45,35 @@ export function KanbanCard({ task, assignee, currentProject }: KanbanCardProps) 
 
   return (
     <>
-    <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer glassmorphism" onClick={() => setIsSheetOpen(true)}>
-      <CardHeader className="p-4">
-        <CardTitle className="text-base font-semibold leading-snug">{task.title}</CardTitle>
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          {dueDate && (
-             <div className="flex items-center gap-1.5">
-              <CalendarIcon className="w-3.5 h-3.5" />
-              <span title={format(dueDate, "PPP")}>
-                {formatDistanceToNow(dueDate, { addSuffix: true })}
-              </span>
-            </div>
-          )}
-          <Badge variant="outline" className={`capitalize ${priorityColors[task.priority]}`}>
-            {task.priority}
-          </Badge>
-          {assignee ? (
-            <Avatar className="h-6 w-6" title={assignee.name || ''}>
-              <AvatarImage src={assignee.avatarUrl || undefined} alt={assignee.name || ''} />
-              <AvatarFallback>{getInitials(assignee.name)}</AvatarFallback>
-            </Avatar>
-          ) : (
-             <div className="h-6 w-6 rounded-full bg-muted border border-dashed" />
-          )}
-        </div>
-      </CardContent>
-    </Card>
-    <TaskDetailSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} task={task} currentProject={currentProject} />
+      <Card className="hover:shadow-md transition-shadow duration-200 cursor-pointer glassmorphism" onClick={() => setIsSheetOpen(true)}>
+        <CardHeader className="p-4">
+          <CardTitle className="text-base font-semibold leading-snug">{task.title}</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            {dueDate && (
+              <div className="flex items-center gap-1.5">
+                <CalendarIcon className="w-3.5 h-3.5" />
+                <span title={format(dueDate, "PPP")}>
+                  {formatDistanceToNow(dueDate, { addSuffix: true })}
+                </span>
+              </div>
+            )}
+            <Badge variant="outline" className={`capitalize ${priorityColors[task.priority]}`}>
+              {task.priority}
+            </Badge>
+            {assignee ? (
+              <Avatar className="h-6 w-6" title={assignee.name || ''}>
+                <AvatarImage src={assignee.avatarUrl || undefined} alt={assignee.name || ''} />
+                <AvatarFallback>{getInitials(assignee.name)}</AvatarFallback>
+              </Avatar>
+            ) : (
+              <div className="h-6 w-6 rounded-full bg-muted border border-dashed" />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+      <TaskDetailSheet open={isSheetOpen} onOpenChange={setIsSheetOpen} task={task} />
     </>
   );
 }

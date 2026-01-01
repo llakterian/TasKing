@@ -21,49 +21,32 @@ import {
 import { PlusCircle, Settings, LogOut } from "lucide-react";
 import { TasKingLogo } from "./icons";
 import { NewTaskSheet } from "./kanban/new-task-sheet";
-import { useUser, useFirebase, useCollection } from "@/firebase";
+import { useUser, useFirebase, useCollection, useCurrentProject } from "@/firebase";
 import { signOut } from "@/firebase/auth/auth";
 import { collection, query, where } from "firebase/firestore";
 import type { Project } from "@/lib/data";
 
-interface HeaderProps {
-    onProjectChange: ((project: Project) => void) | undefined;
-    currentProject: Project | undefined;
-}
-
-export function Header({ onProjectChange, currentProject }: HeaderProps) {
+export function Header() {
   const { user } = useUser();
   const { auth, firestore } = useFirebase();
-
-  const projectsQuery = React.useMemo(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'projects'), where('ownerId', '==', user.uid));
-  }, [firestore, user]);
-
-  const { data: projects } = useCollection<Project>(projectsQuery);
-
-  React.useEffect(() => {
-    if (projects && projects.length > 0 && !currentProject && onProjectChange) {
-        onProjectChange(projects[0]);
-    }
-  }, [projects, currentProject, onProjectChange]);
+  const { currentProject, setCurrentProject, projects } = useCurrentProject();
 
   const handleProjectChange = (projectId: string) => {
     const project = projects?.find(p => p.id === projectId);
-    if (project && onProjectChange) {
-        onProjectChange(project);
+    if (project) {
+      setCurrentProject(project);
     }
   }
 
   const handleSignOut = () => {
-    if(auth) {
+    if (auth) {
       signOut(auth);
     }
   }
 
   const getInitials = (name?: string | null, email?: string | null) => {
     if (name) {
-      if (name.startsWith('0x')) return name.slice(2,6).toUpperCase();
+      if (name.startsWith('0x')) return name.slice(2, 6).toUpperCase();
       return name.split(' ').map(n => n[0]).join('');
     }
     if (email) {
@@ -79,7 +62,7 @@ export function Header({ onProjectChange, currentProject }: HeaderProps) {
     if (user?.displayName) return user.displayName;
     if (user?.email) return user.email;
     if (user?.uid) {
-      return `${user.uid.substring(0,6)}...${user.uid.substring(user.uid.length - 4)}`
+      return `${user.uid.substring(0, 6)}...${user.uid.substring(user.uid.length - 4)}`
     }
     return "Anonymous User"
   }
@@ -112,7 +95,7 @@ export function Header({ onProjectChange, currentProject }: HeaderProps) {
         )}
 
         {user && (
-          <NewTaskSheet currentProject={currentProject}>
+          <NewTaskSheet>
             <Button size="sm" className="gap-2">
               <PlusCircle size={16} />
               <span className="hidden sm:inline">New Task</span>

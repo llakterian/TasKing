@@ -15,6 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
+  SheetTrigger,
   Button,
   Input,
   Label,
@@ -39,7 +40,7 @@ import { useToast } from "@/hooks/use-toast";
 import { statuses } from "@/lib/data-mock";
 import { generateTaskDescription } from "@/ai/flows/generate-task-description";
 import { recommendAssignee } from "@/ai/flows/recommend-assignee";
-import { useCollection, useFirebase, useUser } from '@/firebase';
+import { useUser, useFirebase, useCollection, useCurrentProject } from "@/firebase";
 import { collection, query, where } from 'firebase/firestore';
 import type { Project, UserProfile, Attachment, Task } from '@/lib/data';
 import { createTask } from '@/firebase/firestore/mutations';
@@ -62,7 +63,7 @@ const attachmentSchema = z.object({
   url: z.string().url('Please enter a valid URL'),
 });
 
-export function NewTaskSheet({ children, currentProject }: { children: React.ReactNode, currentProject?: Project }) {
+export function NewTaskSheet({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [isRecommending, setIsRecommending] = React.useState(false);
@@ -75,13 +76,8 @@ export function NewTaskSheet({ children, currentProject }: { children: React.Rea
   const { toast } = useToast();
   const { firestore } = useFirebase();
   const { user } = useUser();
+  const { currentProject, projects } = useCurrentProject();
 
-  const projectsQuery = React.useMemo(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'projects'), where('ownerId', '==', user.uid));
-  }, [firestore, user]);
-
-  const { data: projects } = useCollection<Project>(projectsQuery);
   const { data: users } = useCollection<UserProfile>(firestore ? collection(firestore, 'users') : null);
 
   const form = useForm<FormValues>({
@@ -240,8 +236,10 @@ export function NewTaskSheet({ children, currentProject }: { children: React.Rea
   return (
     <>
       <Sheet open={open} onOpenChange={setOpen}>
-        <span onClick={() => setOpen(true)}>{children}</span>
-        <SheetContent className="sm:max-w-lg w-full flex flex-col">
+        <SheetTrigger asChild>
+          {children}
+        </SheetTrigger>
+        <SheetContent className="sm:max-w-xl w-full flex flex-col pt-10">
           <SheetHeader>
             <SheetTitle>Create New Task</SheetTitle>
             <SheetDescription>

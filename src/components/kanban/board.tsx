@@ -1,14 +1,17 @@
-import type { Task, Status, UserProfile, Project } from "@/lib/data";
+import type { Task, Status, UserProfile } from "@/lib/data";
 import { KanbanColumn } from "./column";
+import { useCurrentProject } from "@/firebase";
 
 type KanbanBoardProps = {
   tasks: Task[] | null;
   statuses: Status[];
   users: UserProfile[];
-  currentProject: Project;
 };
 
-export function KanbanBoard({ tasks, statuses, users, currentProject }: KanbanBoardProps) {
+export function KanbanBoard({ tasks, statuses, users }: KanbanBoardProps) {
+  const { currentProject } = useCurrentProject();
+  if (!currentProject) return null;
+
   return (
     <div className="flex gap-6">
       {statuses.map((status) => {
@@ -19,7 +22,6 @@ export function KanbanBoard({ tasks, statuses, users, currentProject }: KanbanBo
             status={status}
             tasks={tasksInStatus}
             users={users}
-            currentProject={currentProject}
           />
         );
       })}

@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { Button } from "@/components/ui";
 import { KanbanBoard } from "@/components/kanban/board";
-import { useUser, useFirebase, useCollection } from "@/firebase";
+import { useUser, useFirebase, useCollection, useCurrentProject } from "@/firebase";
 import { signInWithEVMWallet } from "@/firebase/auth/auth";
 import { Wallet } from "lucide-react";
 import { collection } from "firebase/firestore";
@@ -17,9 +17,10 @@ const statuses: Status[] = [
   { id: "done", name: "Done" }
 ];
 
-export default function DashboardPage({ currentProject }: { currentProject?: Project }) {
+export default function DashboardPage() {
   const { user, loading: userLoading } = useUser();
   const { auth, firestore, loading: firebaseLoading } = useFirebase();
+  const { currentProject, loading: projectsLoading, projects } = useCurrentProject();
 
   const tasksQuery = useMemo(() => {
     if (!firestore || !currentProject) return null;
@@ -36,7 +37,7 @@ export default function DashboardPage({ currentProject }: { currentProject?: Pro
   };
 
   // Only block the entire page on core auth/firebase loading
-  if (userLoading || firebaseLoading) {
+  if (userLoading || firebaseLoading || (projectsLoading && !projects)) {
     return (
       <div className="flex-1 flex items-center justify-center">
         <p className="text-muted-foreground animate-pulse">Initializing TasKing...</p>
@@ -75,7 +76,7 @@ export default function DashboardPage({ currentProject }: { currentProject?: Pro
             </div>
           </div>
         ) : currentProject && tasks ? (
-          <KanbanBoard tasks={tasks} statuses={statuses} users={users || []} currentProject={currentProject} />
+          <KanbanBoard tasks={tasks} statuses={statuses} users={users || []} />
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <p className="text-muted-foreground">No projects found or no project selected. Create a new project to get started.</p>

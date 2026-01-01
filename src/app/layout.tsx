@@ -2,7 +2,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui";
-import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { FirebaseClientProvider, ProjectProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'TasKing',
@@ -23,8 +23,10 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased">
         <FirebaseClientProvider>
-          {children}
-          <Toaster />
+          <ProjectProvider>
+            {children}
+            <Toaster />
+          </ProjectProvider>
         </FirebaseClientProvider>
       </body>
     </html>

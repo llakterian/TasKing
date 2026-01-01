@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { AppLayout } from "@/components/app-layout";
-import { useUser, useFirebase, useCollection } from "@/firebase";
+import { useUser, useFirebase, useCollection, useCurrentProject } from "@/firebase";
 import { collection, query, where } from "firebase/firestore";
 import type { Project } from "@/lib/data";
 
@@ -11,21 +11,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { user } = useUser();
-  const { firestore } = useFirebase();
-  const [currentProject, setCurrentProject] = React.useState<Project | undefined>(undefined);
-
-  const projectsQuery = React.useMemo(() => {
-    if (!firestore || !user) return null;
-    return query(collection(firestore, 'projects'), where('ownerId', '==', user.uid));
-  }, [firestore, user]);
-
-  const { data: projects } = useCollection<Project>(projectsQuery);
-
-  React.useEffect(() => {
-    if (projects && projects.length > 0 && !currentProject) {
-      setCurrentProject(projects[0]);
-    }
-  }, [projects, currentProject]);
+  const { currentProject, setCurrentProject } = useCurrentProject();
 
   if (!user) {
     return (
@@ -38,11 +24,8 @@ export default function DashboardLayout({
   }
 
   return (
-    <AppLayout
-      currentProject={currentProject}
-      onProjectChange={setCurrentProject}
-    >
-      {React.cloneElement(children as React.ReactElement<{ currentProject: Project | undefined }>, { currentProject })}
+    <AppLayout>
+      {children}
     </AppLayout>
   );
 }
