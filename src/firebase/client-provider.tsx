@@ -57,14 +57,17 @@ export const FirebaseClientProvider: React.FC<{ children: React.ReactNode }> = (
     } else {
       app = getApp();
     }
-    
+
     const auth = getAuth(app);
-    const firestore = getFirestore(app);
+    const { initializeFirestore } = require('firebase/firestore');
+    const firestore = initializeFirestore(app, {
+      experimentalForceLongPolling: true,
+    });
 
     setFirebaseInstances({ app, auth, firestore });
     setLoading(false);
   }, []);
-  
+
   const contextValue = useMemo(() => ({
     ...firebaseInstances,
     loading
