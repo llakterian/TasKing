@@ -348,8 +348,10 @@ export function NewTaskSheet({ children, currentProject }: { children: React.Rea
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
-                      selected={form.watch("dueDate")}
-                      onSelect={(date) => form.setValue("dueDate", date as Date)}
+                      selected={form.watch("dueDate") || undefined}
+                      onSelect={(date) => {
+                        form.setValue("dueDate", date || undefined);
+                      }}
                       initialFocus
                     />
                   </PopoverContent>
