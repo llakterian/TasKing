@@ -1,0 +1,86 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'PT Sans', sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 210 40% 98%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 210 40% 98%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 210 40% 98%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 132 40% 35%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 217.2 32.6% 17.5%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 28 29% 50%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 132 40% 35%;
+    --radius: 0.5rem;
+    
+    --sidebar-background: 132 11% 92%;
+    --sidebar-foreground: 224 7.1% 4.1%;
+    --sidebar-primary: 132 40% 35%;
+    --sidebar-primary-foreground: 355.7 100% 97.3%;
+    --sidebar-accent: 132 11% 88%;
+    --sidebar-accent-foreground: 224 7.1% 4.1%;
+    --sidebar-border: 132 10% 80%;
+    --sidebar-ring: 132 40% 35%;
+  }
+  .dark {
+    --background: 132 5% 15%;
+    --foreground: 132 10% 85%;
+    --card: 132 5% 20%;
+    --card-foreground: 132 10% 85%;
+    --popover: 132 5% 15%;
+    --popover-foreground: 132 10% 85%;
+    --primary: 132 40% 65%;
+    --primary-foreground: 132 40% 10%;
+    --secondary: 220 3.4% 25.1%;
+    --secondary-foreground: 132 10% 85%;
+    --muted: 220 3.4% 25.1%;
+    --muted-foreground: 220 5.3% 66.9%;
+    --accent: 28 29% 60%;
+    --accent-foreground: 28 30% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 132 5% 25%;
+    --input: 132 5% 25%;
+    --ring: 132 40% 65%;
+
+    --sidebar-background: 132 5% 12%;
+    --sidebar-foreground: 132 10% 85%;
+    --sidebar-primary: 132 40% 65%;
+    --sidebar-primary-foreground: 132 40% 10%;
+    --sidebar-accent: 132 5% 22%;
+    --sidebar-accent-foreground: 132 10% 95%;
+    --sidebar-border: 132 5% 25%;
+    --sidebar-ring: 132 40% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .glassmorphism {
+    @apply bg-card/50 backdrop-blur-lg border border-white/10;
+  }
+}

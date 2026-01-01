@@ -1,0 +1,141 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID. This will be their EVM address."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's display name. Can be an ENS name or a truncated address."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        }
+      },
+      "required": ["uid"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Represents a project containing tasks.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the project."
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "The UID of the user who owns the project."
+        }
+      },
+      "required": ["name", "ownerId"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Represents a single task within a project.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The title of the task."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the task."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["backlog", "todo", "in-progress", "done"]
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The due date for the task."
+        },
+        "assigneeId": {
+          "type": "string",
+          "description": "The UID of the user assigned to the task."
+        },
+        "projectId": {
+          "type": "string",
+          "description": "The ID of the project this task belongs to."
+        },
+        "attachments": {
+          "type": "array",
+          "description": "A list of attachments for the task.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["github", "drive", "link"]
+              },
+              "name": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri"
+              }
+            },
+            "required": ["type", "name", "url"]
+          }
+        }
+      },
+      "required": ["title", "status", "projectId"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Represents a message within a project task.",
+      "type": "object",
+      "properties": {
+        "text": {
+          "type": "string",
+          "description": "The content of the message."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "The UID of the user who sent the message."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the message was created."
+        }
+      },
+      "required": ["text", "authorId", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["custom"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Stores public profile information for each user, keyed by their EVM address."
+    },
+    "/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/Project" },
+      "description": "Top-level collection for projects."
+    },
+    "/projects/{projectId}/tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/Task" },
+      "description": "Sub-collection for tasks within a specific project."
+    },
+    "/projects/{projectId}/tasks/{taskId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/Message" },
+      "description": "Sub-collection for messages within a specific task."
+    }
+  }
+}
