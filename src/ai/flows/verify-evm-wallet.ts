@@ -17,10 +17,30 @@ import * as admin from 'firebase-admin';
 if (!admin.apps.length) {
   const projectId = process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (privateKey) {
+    // 1. Handle surrounding quotes if the user pasted it with quotes into Vercel
+    if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+      privateKey = privateKey.substring(1, privateKey.length - 1);
+    }
+    // 2. Standard fix: replace literal \n with actual newlines
+    privateKey = privateKey.replace(/\\n/g, '\n');
+    // 3. Remove escaped double quotes if any
+    privateKey = privateKey.replace(/\\"/g, '"');
+  }
 
   if (projectId && clientEmail && privateKey) {
     try {
+      // Log metadata to debug formatting without revealing the key
+      console.log('Firebase Admin: Initializing with metadata:', {
+        projectId,
+        clientEmail,
+        keyLength: privateKey.length,
+        hasHeader: privateKey.includes('-----BEGIN PRIVATE KEY-----'),
+        hasFooter: privateKey.includes('-----END PRIVATE KEY-----'),
+      });
+
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId,
