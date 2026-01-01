@@ -1,7 +1,7 @@
 'use client';
 
-import { 
-    signOut as firebaseSignOut, 
+import {
+    signOut as firebaseSignOut,
     onAuthStateChanged as onFirebaseAuthStateChanged,
     signInWithCustomToken,
     type Auth,
@@ -17,7 +17,7 @@ const createUserProfile = async (firestore: Firestore, user: User) => {
 
     if (!userDoc.exists()) {
         const { uid, displayName, email, photoURL } = user;
-        const profileData: {uid: string, name: string | null, email?: string | null, avatarUrl: string | null} = {
+        const profileData: { uid: string, name: string | null, email?: string | null, avatarUrl: string | null } = {
             uid,
             name: displayName,
             email,
@@ -48,18 +48,22 @@ export const signInWithEVMWallet = async (auth: Auth, firestore: Firestore) => {
 
         const message = `Welcome to TasKing! Please sign this message to log in. Nonce: ${Date.now()}`;
         const signature = await signer.signMessage(message);
-        
+
         const { customToken } = await verifyEVMWallet({ address, message, signature });
 
         if (customToken) {
-           const userCredential = await signInWithCustomToken(auth, customToken);
-           await createUserProfile(firestore, userCredential.user);
+            const userCredential = await signInWithCustomToken(auth, customToken);
+            await createUserProfile(firestore, userCredential.user);
         } else {
             throw new Error("Could not get a valid custom token from the backend.");
         }
 
     } catch (error: any) {
-        console.error("EVM Wallet sign-in error", error);
+        console.error("EVM Wallet sign-in error", {
+            message: error.message,
+            code: error.code,
+            customTokenLength: error.customToken?.length || 'N/A'
+        });
         alert(`An error occurred during wallet sign-in: ${error.message || 'See console for details.'}`);
     }
 };
@@ -67,7 +71,7 @@ export const signInWithEVMWallet = async (auth: Auth, firestore: Firestore) => {
 export function onAuthStateChanged(auth: Auth | null, callback: (user: User | null) => void) {
     if (!auth) {
         callback(null);
-        return () => {};
+        return () => { };
     };
     return onFirebaseAuthStateChanged(auth, callback);
 }

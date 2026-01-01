@@ -14,12 +14,22 @@ export function getFirebaseConfig() {
     "messagingSenderId": process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
   };
 
+  // Client-side diagnostics (Visible in browser console)
+  console.log('Firebase Client Diagnostics:', {
+    hasProjectId: !!config.projectId,
+    hasAppId: !!config.appId,
+    hasApiKey: !!config.apiKey,
+    hasAuthDomain: !!config.authDomain,
+    authDomainValue: config.authDomain, // Safe to log public domain
+    apiKeyLength: config.apiKey?.length || 0,
+  });
+
   const missingVars = Object.entries(config)
     .filter(([key, value]) => !value && key !== 'measurementId')
     .map(([key]) => key);
 
   if (missingVars.length > 0) {
-    console.error('Missing Firebase environment variables:', missingVars.join(', '));
+    console.error('CRITICAL: Missing Firebase Client environment variables:', missingVars.join(', '));
   }
 
   return config;
