@@ -34,14 +34,16 @@ const createUserProfile = async (firestore: Firestore, user: User) => {
     }
 }
 
-export const signInWithEVMWallet = async (auth: Auth, firestore: Firestore) => {
+export const signInWithEVMWallet = async (auth: Auth, firestore: Firestore, injectedProvider?: any) => {
     try {
-        if (!(window as any).ethereum) {
+        const ethereum = injectedProvider || (window as any).ethereum;
+
+        if (!ethereum) {
             alert('Please install MetaMask or another EVM wallet provider.');
             return;
         }
 
-        const provider = new BrowserProvider((window as any).ethereum);
+        const provider = new BrowserProvider(ethereum);
         await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
         const address = await signer.getAddress();
