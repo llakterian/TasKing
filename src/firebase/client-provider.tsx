@@ -62,10 +62,29 @@ export const FirebaseClientProvider: React.FC<{ children: React.ReactNode }> = (
     const { initializeFirestore } = require('firebase/firestore');
     const firestore = initializeFirestore(app, {
       experimentalForceLongPolling: true,
+      useFetchStreams: false,
     });
 
     setFirebaseInstances({ app, auth, firestore });
     setLoading(false);
+
+    // Connectivity Test (Dev Only)
+    // This helps debug issues where adblockers might be blocking Firestore requests
+    if (process.env.NODE_ENV === 'development') {
+      const { doc, getDoc, collection } = require('firebase/firestore');
+      // Small delay to ensure network stack is ready
+      setTimeout(() => {
+        const testRef = doc(collection(firestore, 'connectivity_test'), 'ping');
+        getDoc(testRef)
+          .then(() => console.log('✅ Firestore connectivity established'))
+          .catch((e: any) => {
+            console.error('❌ Firestore connectivity failed:', e);
+            if (e.code === 'failed-precondition' || e.code === 'unavailable') {
+              console.warn('⚠️ This error often indicates an ad-blocker is interfering with Firestore. Please disable ad-blockers for this site.');
+            }
+          });
+      }, 2000);
+    }
   }, []);
 
   const contextValue = useMemo(() => ({

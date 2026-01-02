@@ -10,7 +10,7 @@ import type { Task, Project, Message, Attachment } from '@/lib/data';
 
 type NewTaskPayload = Omit<
   Task,
-  'id' | 'createdAt' | 'updatedAt' | 'projectRef' 
+  'id' | 'createdAt' | 'updatedAt' | 'projectRef'
 > & { attachments: Attachment[] };
 
 export async function createTask(
@@ -41,29 +41,31 @@ export async function createProject(
     const projectCollection = collection(firestore, 'projects');
     const docRef = await addDoc(projectCollection, projectData);
     return docRef as DocumentReference<Project>;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating project:', error);
-    throw new Error('Failed to create project.');
+    // Preserving the original error name/code if possible for better UI diagnostics
+    const errorMessage = error.code ? `[${error.code}] ${error.message}` : error.message;
+    throw new Error(`Failed to create project: ${errorMessage}`);
   }
 }
 
 type NewMessagePayload = Omit<Message, 'id' | 'createdAt'>
 
 export async function addMessage(
-    firestore: Firestore,
-    projectId: string,
-    taskId: string,
-    messageData: NewMessagePayload
+  firestore: Firestore,
+  projectId: string,
+  taskId: string,
+  messageData: NewMessagePayload
 ): Promise<DocumentReference> {
-    try {
-        const messagesCollection = collection(firestore, 'projects', projectId, 'tasks', taskId, 'messages');
-        const docRef = await addDoc(messagesCollection, {
-            ...messageData,
-            createdAt: serverTimestamp(),
-        });
-        return docRef;
-    } catch (error) {
-        console.error('Error adding message:', error);
-        throw new Error('Failed to add message.');
-    }
+  try {
+    const messagesCollection = collection(firestore, 'projects', projectId, 'tasks', taskId, 'messages');
+    const docRef = await addDoc(messagesCollection, {
+      ...messageData,
+      createdAt: serverTimestamp(),
+    });
+    return docRef;
+  } catch (error) {
+    console.error('Error adding message:', error);
+    throw new Error('Failed to add message.');
+  }
 }

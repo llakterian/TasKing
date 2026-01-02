@@ -103,10 +103,26 @@ export function NewProjectSheet({ children }: { children: React.ReactNode }) {
 
     } catch (error: any) {
       console.error('NewProjectSheet: Failed to create project:', error);
+
+      let description = `Failed to create project: ${error.message}`;
+      let title = "Error Creating Project";
+
+      // Check for common connectivity/blocking indicators
+      const isNetworkError =
+        error.message.includes('offline') ||
+        error.message.includes('Failed to fetch') ||
+        error.code === 'unavailable' ||
+        error.code === 'failed-precondition';
+
+      if (isNetworkError) {
+        title = "Connection Blocked";
+        description = "Your connection to the database seems to be blocked. Please disable any ad-blockers or privacy extensions for this site and try again.";
+      }
+
       toast({
         variant: "destructive",
-        title: "Error Creating Project",
-        description: `Failed to create project: ${error.message}`,
+        title: title,
+        description: description,
       });
     }
   }
